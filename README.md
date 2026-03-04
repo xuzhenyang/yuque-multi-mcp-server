@@ -217,14 +217,14 @@ Yuque MCP Server 支持同时连接多个知识库，每个知识库使用不同
 
 | 环境变量 | 知识库名称 |
 |---------|-----------|
-| `TECH_TEAM_TOKEN` | `tech_team` |
-| `ONLINE_MERCHANT_TOKEN` | `online_merchant` |
-| `PERSONAL_TOKEN` | `personal` |
+| `A_TOKEN` | `a` |
+| `B_TOKEN` | `b` |
+| `TEAM_TOKEN` | `team` |
 | `WORK_TOKEN` | `work` |
 
 ```bash
-export TECH_TEAM_TOKEN=your_tech_team_token
-export ONLINE_MERCHANT_TOKEN=your_merchant_token
+export A_TOKEN=your_first_token
+export B_TOKEN=your_second_token
 npx yuque-mcp
 ```
 
@@ -236,8 +236,8 @@ npx yuque-mcp
       "command": "npx",
       "args": ["-y", "github:xuzhenyang/yuque-mcp-server"],
       "env": {
-        "TECH_TEAM_TOKEN": "xxx",
-        "ONLINE_MERCHANT_TOKEN": "yyy"
+        "A_TOKEN": "xxx",
+        "B_TOKEN": "yyy"
       }
     }
   }

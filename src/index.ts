@@ -53,7 +53,7 @@ Error: No Yuque API token configured.
 
 Please set one of the following environment variables:
 - {NAME}_TOKEN=token (dynamic names)
-  Example: TECH_TEAM_TOKEN=xxx ONLINE_MERCHANT_TOKEN=yyy
+  Example: A_TOKEN=xxx B_TOKEN=yyy
 - YUQUE_KB_{NAME}=token (for multiple knowledge bases)
   Example: YUQUE_KB_PERSONAL=token1 YUQUE_KB_WORK=token2
 - YUQUE_PERSONAL_TOKEN=token (backward compatible single token)

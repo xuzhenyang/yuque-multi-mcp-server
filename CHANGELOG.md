@@ -13,8 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All tools now support optional `knowledge_base` parameter
   - Configuration via `YUQUE_KB_{NAME}` environment variables or `--kb=name:token` CLI arguments
   - **Dynamic token names**: Any environment variable ending with `_TOKEN` is automatically recognized
-    - Example: `TECH_TEAM_TOKEN` → `tech_team` knowledge base
-    - Example: `ONLINE_MERCHANT_TOKEN` → `online_merchant` knowledge base
+    - Example: `A_TOKEN` → `a` knowledge base
+    - Example: `B_TOKEN` → `b` knowledge base
   - Backward compatible with single-token configuration
 
 ### Changed

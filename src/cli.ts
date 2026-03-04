@@ -44,10 +44,10 @@ if (handleCliSubcommands(process.argv)) {
     }
 
     // Method 3: Via any env var ending with _TOKEN (dynamic names)
-    // Example: TECH_TEAM_TOKEN=xxx, ONLINE_MERCHANT_TOKEN=yyy
+    // Example: A_TOKEN=xxx, B_TOKEN=yyy
     for (const [key, value] of Object.entries(process.env)) {
       if (key.endsWith('_TOKEN') && value && !key.startsWith('YUQUE_')) {
-        // Convert TECH_TEAM_TOKEN -> tech_team
+        // Convert A_TOKEN -> a
         const name = key
           .slice(0, -6) // Remove '_TOKEN'
           .toLowerCase()
@@ -84,8 +84,8 @@ Error: No Yuque API token configured.
 Please use one of the following methods:
 
 1. Dynamic token environment variables (any name ending with _TOKEN):
-   export TECH_TEAM_TOKEN=your_token
-   export ONLINE_MERCHANT_TOKEN=your_token
+   export A_TOKEN=your_token
+   export B_TOKEN=your_token
    npx yuque-mcp
 
 2. Multiple knowledge bases via YUQUE_KB_*:
@@ -130,8 +130,8 @@ ${kbList}
          "command": "npx",
          "args": ["-y", "yuque-mcp"],
          "env": {
-           "TECH_TEAM_TOKEN": "your_tech_team_token",
-           "ONLINE_MERCHANT_TOKEN": "your_merchant_token"
+           "A_TOKEN": "your_first_token",
+           "B_TOKEN": "your_second_token"
          }
        }
      }

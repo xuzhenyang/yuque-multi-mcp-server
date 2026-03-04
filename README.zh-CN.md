@@ -211,7 +211,40 @@ Yuque MCP Server 支持同时连接多个知识库，每个知识库使用不同
 
 ### 配置方式
 
-**方式 1：环境变量（推荐）**
+**方式 1：动态 Token 名称（推荐用于 Cursor/VSCode）**
+
+任何以 `_TOKEN` 结尾的环境变量都会自动被识别为知识库 Token。
+
+| 环境变量 | 知识库名称 |
+|---------|-----------|
+| `TECH_TEAM_TOKEN` | `tech_team` |
+| `ONLINE_MERCHANT_TOKEN` | `online_merchant` |
+| `PERSONAL_TOKEN` | `personal` |
+| `WORK_TOKEN` | `work` |
+
+```bash
+export TECH_TEAM_TOKEN=your_tech_team_token
+export ONLINE_MERCHANT_TOKEN=your_merchant_token
+npx yuque-mcp
+```
+
+**Cursor 配置示例：**
+```json
+{
+  "mcpServers": {
+    "yuque": {
+      "command": "npx",
+      "args": ["-y", "github:xuzhenyang/yuque-mcp-server"],
+      "env": {
+        "TECH_TEAM_TOKEN": "xxx",
+        "ONLINE_MERCHANT_TOKEN": "yyy"
+      }
+    }
+  }
+}
+```
+
+**方式 2：YUQUE_KB_* 前缀**
 
 ```bash
 export YUQUE_KB_PERSONAL=your_personal_token
@@ -220,13 +253,13 @@ export YUQUE_KB_TEAM=your_team_token
 npx yuque-mcp
 ```
 
-**方式 2：命令行参数**
+**方式 3：命令行参数**
 
 ```bash
 npx yuque-mcp --kb=personal:token1 --kb=work:token2 --kb=team:token3
 ```
 
-**方式 3：Claude Desktop 配置**
+**方式 4：Claude Desktop 配置（YUQUE_KB_*）**
 
 ```json
 {

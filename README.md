@@ -211,7 +211,40 @@ Yuque MCP Server supports connecting to multiple knowledge bases with different 
 
 ### Configuration Methods
 
-**Method 1: Environment Variables (Recommended)**
+**Method 1: Dynamic Token Names (Recommended for Cursor/VSCode)**
+
+Any environment variable ending with `_TOKEN` will be automatically recognized as a knowledge base token.
+
+| Environment Variable | Knowledge Base Name |
+|---------------------|---------------------|
+| `TECH_TEAM_TOKEN` | `tech_team` |
+| `ONLINE_MERCHANT_TOKEN` | `online_merchant` |
+| `PERSONAL_TOKEN` | `personal` |
+| `WORK_TOKEN` | `work` |
+
+```bash
+export TECH_TEAM_TOKEN=your_tech_team_token
+export ONLINE_MERCHANT_TOKEN=your_merchant_token
+npx yuque-mcp
+```
+
+**Cursor Config Example:**
+```json
+{
+  "mcpServers": {
+    "yuque": {
+      "command": "npx",
+      "args": ["-y", "github:xuzhenyang/yuque-mcp-server"],
+      "env": {
+        "TECH_TEAM_TOKEN": "xxx",
+        "ONLINE_MERCHANT_TOKEN": "yyy"
+      }
+    }
+  }
+}
+```
+
+**Method 2: YUQUE_KB_* Prefix**
 
 ```bash
 export YUQUE_KB_PERSONAL=your_personal_token
@@ -220,13 +253,13 @@ export YUQUE_KB_TEAM=your_team_token
 npx yuque-mcp
 ```
 
-**Method 2: CLI Arguments**
+**Method 3: CLI Arguments**
 
 ```bash
 npx yuque-mcp --kb=personal:token1 --kb=work:token2 --kb=team:token3
 ```
 
-**Method 3: Claude Desktop Config**
+**Method 4: Claude Desktop Config (YUQUE_KB_*)**
 
 ```json
 {

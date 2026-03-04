@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Multi-Knowledge Base Support**: Connect to multiple Yuque knowledge bases with different tokens
+  - New `MultiYuqueClient` class for managing multiple clients
+  - All tools now support optional `knowledge_base` parameter
+  - Configuration via `YUQUE_KB_{NAME}` environment variables or `--kb=name:token` CLI arguments
+  - Backward compatible with single-token configuration
+
 ### Changed
 - Support `YUQUE_PERSONAL_TOKEN` and `YUQUE_GROUP_TOKEN` as primary environment variables (with `YUQUE_TOKEN` as fallback for backward compatibility)
 - Update error messages to reflect new environment variable naming

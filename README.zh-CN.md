@@ -205,6 +205,68 @@ claude mcp add yuque-mcp -- npx -y yuque-mcp
 
 ---
 
+## 多知识库支持（多 Token）
+
+Yuque MCP Server 支持同时连接多个知识库，每个知识库使用不同的 Token。每个工具都支持可选的 `knowledge_base` 参数来指定要使用的知识库。
+
+### 配置方式
+
+**方式 1：环境变量（推荐）**
+
+```bash
+export YUQUE_KB_PERSONAL=your_personal_token
+export YUQUE_KB_WORK=your_work_token
+export YUQUE_KB_TEAM=your_team_token
+npx yuque-mcp
+```
+
+**方式 2：命令行参数**
+
+```bash
+npx yuque-mcp --kb=personal:token1 --kb=work:token2 --kb=team:token3
+```
+
+**方式 3：Claude Desktop 配置**
+
+```json
+{
+  "mcpServers": {
+    "yuque": {
+      "command": "npx",
+      "args": ["-y", "yuque-mcp"],
+      "env": {
+        "YUQUE_KB_PERSONAL": "your_personal_token",
+        "YUQUE_KB_WORK": "your_work_token"
+      }
+    }
+  }
+}
+```
+
+### 使用方式
+
+配置多个知识库后，每个工具都会包含 `knowledge_base` 参数：
+
+```json
+{
+  "name": "yuque_list_docs",
+  "description": "可用知识库: personal, work. 默认: personal. 列出知识库中的所有文档",
+  "inputSchema": {
+    "properties": {
+      "repo_id": { ... },
+      "knowledge_base": {
+        "description": "要使用的知识库. 选项: personal, work. 默认: personal",
+        "type": "string"
+      }
+    }
+  }
+}
+```
+
+如果未指定 `knowledge_base`，将使用第一个配置的知识库（默认）。
+
+---
+
 ## 可用工具（25 个）
 
 | 分类 | 工具 |

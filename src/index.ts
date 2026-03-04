@@ -2,15 +2,50 @@ import { createServer as createMCPServer } from './server.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
+import type { KnowledgeBaseConfig } from './services/multi-yuque-client.js';
 
-const token = process.env.YUQUE_PERSONAL_TOKEN || process.env.YUQUE_GROUP_TOKEN || process.env.YUQUE_TOKEN;
+// Parse knowledge base configurations from environment variables
+function parseKnowledgeBases(): KnowledgeBaseConfig[] {
+  const configs: KnowledgeBaseConfig[] = [];
 
-if (!token) {
-  console.error('Error: YUQUE_PERSONAL_TOKEN, YUQUE_GROUP_TOKEN, or YUQUE_TOKEN environment variable is required');
+  // Parse YUQUE_KB_{NAME} environment variables
+  for (const [key, value] of Object.entries(process.env)) {
+    if (key.startsWith('YUQUE_KB_') && value) {
+      const name = key.slice(9).toLowerCase(); // Remove 'YUQUE_KB_'
+      configs.push({ name, token: value });
+    }
+  }
+
+  // Backward compatibility: single token mode
+  if (configs.length === 0) {
+    const legacyToken =
+      process.env.YUQUE_PERSONAL_TOKEN ||
+      process.env.YUQUE_GROUP_TOKEN ||
+      process.env.YUQUE_TOKEN;
+
+    if (legacyToken) {
+      configs.push({ name: 'default', token: legacyToken });
+    }
+  }
+
+  return configs;
+}
+
+const configs = parseKnowledgeBases();
+
+if (configs.length === 0) {
+  console.error(`
+Error: No Yuque API token configured.
+
+Please set one of the following environment variables:
+- YUQUE_KB_{NAME}=token (for multiple knowledge bases)
+  Example: YUQUE_KB_PERSONAL=token1 YUQUE_KB_WORK=token2
+- YUQUE_PERSONAL_TOKEN=token (backward compatible single token)
+`);
   process.exit(1);
 }
 
-const mcpServer = createMCPServer(token);
+const mcpServer = createMCPServer(configs);
 const transport = new StreamableHTTPServerTransport({
   sessionIdGenerator: () => randomUUID(),
 });
@@ -26,7 +61,8 @@ mcpServer.connect(transport).then(() => {
   });
 
   httpServer.listen(port, () => {
-    console.log(`Yuque MCP Server running on http://localhost:${port}`);
+    const kbNames = configs.map((c) => c.name).join(', ');
+    console.log(`Yuque MCP Server running on http://localhost:${port} with knowledge base(s): ${kbNames}`);
   });
 }).catch((error) => {
   console.error('Failed to start server:', error);

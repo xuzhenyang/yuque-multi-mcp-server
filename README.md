@@ -205,6 +205,68 @@ The server supports multiple ways to provide your Yuque API token:
 
 ---
 
+## Multiple Knowledge Bases (Multi-Token)
+
+Yuque MCP Server supports connecting to multiple knowledge bases with different tokens. Each tool accepts an optional `knowledge_base` parameter to specify which knowledge base to use.
+
+### Configuration Methods
+
+**Method 1: Environment Variables (Recommended)**
+
+```bash
+export YUQUE_KB_PERSONAL=your_personal_token
+export YUQUE_KB_WORK=your_work_token
+export YUQUE_KB_TEAM=your_team_token
+npx yuque-mcp
+```
+
+**Method 2: CLI Arguments**
+
+```bash
+npx yuque-mcp --kb=personal:token1 --kb=work:token2 --kb=team:token3
+```
+
+**Method 3: Claude Desktop Config**
+
+```json
+{
+  "mcpServers": {
+    "yuque": {
+      "command": "npx",
+      "args": ["-y", "yuque-mcp"],
+      "env": {
+        "YUQUE_KB_PERSONAL": "your_personal_token",
+        "YUQUE_KB_WORK": "your_work_token"
+      }
+    }
+  }
+}
+```
+
+### Usage
+
+When multiple knowledge bases are configured, each tool will include a `knowledge_base` parameter:
+
+```json
+{
+  "name": "yuque_list_docs",
+  "description": "Available knowledge bases: personal, work. Default: personal. List all documents in a repo/book",
+  "inputSchema": {
+    "properties": {
+      "repo_id": { ... },
+      "knowledge_base": {
+        "description": "Knowledge base to use. Options: personal, work. Default: personal",
+        "type": "string"
+      }
+    }
+  }
+}
+```
+
+If `knowledge_base` is not specified, the first configured knowledge base (default) will be used.
+
+---
+
 ## Available Tools (25)
 
 | Category | Tools |

@@ -228,13 +228,29 @@ export B_TOKEN=your_second_token
 npx yuque-mcp
 ```
 
-**Cursor Config Example:**
+**Cursor Config Example (GitHub):**
 ```json
 {
   "mcpServers": {
     "yuque": {
       "command": "npx",
       "args": ["-y", "github:xuzhenyang/yuque-mcp-server"],
+      "env": {
+        "A_TOKEN": "xxx",
+        "B_TOKEN": "yyy"
+      }
+    }
+  }
+}
+```
+
+**Cursor Config Example (Local Project):**
+```json
+{
+  "mcpServers": {
+    "yuque-multi": {
+      "command": "node",
+      "args": ["/Users/xxx/yuque-mcp-server/dist/cli.js"],
       "env": {
         "A_TOKEN": "xxx",
         "B_TOKEN": "yyy"

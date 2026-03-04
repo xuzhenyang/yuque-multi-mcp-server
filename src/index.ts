@@ -8,11 +8,25 @@ import type { KnowledgeBaseConfig } from './services/multi-yuque-client.js';
 function parseKnowledgeBases(): KnowledgeBaseConfig[] {
   const configs: KnowledgeBaseConfig[] = [];
 
-  // Parse YUQUE_KB_{NAME} environment variables
+  // Method 1: Parse YUQUE_KB_{NAME} environment variables
   for (const [key, value] of Object.entries(process.env)) {
     if (key.startsWith('YUQUE_KB_') && value) {
       const name = key.slice(9).toLowerCase(); // Remove 'YUQUE_KB_'
       configs.push({ name, token: value });
+    }
+  }
+
+  // Method 2: Via any env var ending with _TOKEN (dynamic names)
+  for (const [key, value] of Object.entries(process.env)) {
+    if (key.endsWith('_TOKEN') && value && !key.startsWith('YUQUE_')) {
+      const name = key
+        .slice(0, -6) // Remove '_TOKEN'
+        .toLowerCase()
+        .replace(/_+/g, '_');
+      
+      if (name && !configs.find((c) => c.name === name)) {
+        configs.push({ name, token: value });
+      }
     }
   }
 
@@ -38,6 +52,8 @@ if (configs.length === 0) {
 Error: No Yuque API token configured.
 
 Please set one of the following environment variables:
+- {NAME}_TOKEN=token (dynamic names)
+  Example: TECH_TEAM_TOKEN=xxx ONLINE_MERCHANT_TOKEN=yyy
 - YUQUE_KB_{NAME}=token (for multiple knowledge bases)
   Example: YUQUE_KB_PERSONAL=token1 YUQUE_KB_WORK=token2
 - YUQUE_PERSONAL_TOKEN=token (backward compatible single token)

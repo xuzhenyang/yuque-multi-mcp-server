@@ -43,7 +43,23 @@ if (handleCliSubcommands(process.argv)) {
       }
     }
 
-    // Method 3: Backward compatibility with single token
+    // Method 3: Via any env var ending with _TOKEN (dynamic names)
+    // Example: TECH_TEAM_TOKEN=xxx, ONLINE_MERCHANT_TOKEN=yyy
+    for (const [key, value] of Object.entries(process.env)) {
+      if (key.endsWith('_TOKEN') && value && !key.startsWith('YUQUE_')) {
+        // Convert TECH_TEAM_TOKEN -> tech_team
+        const name = key
+          .slice(0, -6) // Remove '_TOKEN'
+          .toLowerCase()
+          .replace(/_+/g, '_'); // Normalize underscores
+        
+        if (name && !configs.find((c) => c.name === name)) {
+          configs.push({ name, token: value });
+        }
+      }
+    }
+
+    // Method 4: Backward compatibility with single token
     if (configs.length === 0) {
       const legacyToken =
         process.env.YUQUE_PERSONAL_TOKEN ||
@@ -67,15 +83,20 @@ Error: No Yuque API token configured.
 
 Please use one of the following methods:
 
-1. Multiple knowledge bases via environment variables:
+1. Dynamic token environment variables (any name ending with _TOKEN):
+   export TECH_TEAM_TOKEN=your_token
+   export ONLINE_MERCHANT_TOKEN=your_token
+   npx yuque-mcp
+
+2. Multiple knowledge bases via YUQUE_KB_*:
    export YUQUE_KB_PERSONAL=your_personal_token
    export YUQUE_KB_WORK=your_work_token
    npx yuque-mcp
 
-2. Multiple knowledge bases via CLI arguments:
+3. Multiple knowledge bases via CLI arguments:
    npx yuque-mcp --kb=personal:token1 --kb=work:token2
 
-3. Single knowledge base (backward compatible):
+4. Single knowledge base (backward compatible):
    export YUQUE_PERSONAL_TOKEN=your_token
    npx yuque-mcp
 `);
@@ -102,7 +123,21 @@ ${kbList}
 
 🚀 Quick install to your editor:
 
-   Claude Desktop (with multiple KBs):
+   Cursor/Claude (with dynamic token names):
+   {
+     "mcpServers": {
+       "yuque": {
+         "command": "npx",
+         "args": ["-y", "yuque-mcp"],
+         "env": {
+           "TECH_TEAM_TOKEN": "your_tech_team_token",
+           "ONLINE_MERCHANT_TOKEN": "your_merchant_token"
+         }
+       }
+     }
+   }
+
+   Or with YUQUE_KB_* prefix:
    {
      "mcpServers": {
        "yuque": {

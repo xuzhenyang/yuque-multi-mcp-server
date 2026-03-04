@@ -209,6 +209,20 @@ The server supports multiple ways to provide your Yuque API token:
 
 Yuque MCP Server supports connecting to multiple knowledge bases with different tokens. Each tool accepts an optional `knowledge_base` parameter to specify which knowledge base to use.
 
+> ⚠️ **Security Note: Default Readonly Mode**
+> 
+> For security reasons, the Server **starts in readonly mode by default** (`YUQUE_MODE=readonly`), allowing only query operations.
+> 
+> To enable write or delete operations, explicitly set the environment variable: `"YUQUE_MODE": "write"` or `"YUQUE_MODE": "full"`
+
+### Permission Modes
+
+| Mode | Tool Count | Description |
+|------|-----------|-------------|
+| `readonly` (default) | 16 | Read-only queries: get user, list, search, stats, etc. |
+| `write` | 22 | Read-write mode: includes create, update operations |
+| `full` | 25 | Full mode: includes delete and other dangerous operations |
+
 ### Configuration Methods
 
 **Method 1: Dynamic Token Names (Recommended for Cursor/VSCode)**
@@ -244,16 +258,34 @@ npx yuque-mcp
 }
 ```
 
-**Cursor Config Example (Local Project):**
+**Cursor Config Example (Local Project, Readonly Mode):**
 ```json
 {
   "mcpServers": {
-    "yuque-multi": {
+    "yuque-multi-readonly": {
       "command": "node",
       "args": ["/Users/xxx/yuque-mcp-server/dist/cli.js"],
       "env": {
         "A_TOKEN": "xxx",
         "B_TOKEN": "yyy"
+        // Default YUQUE_MODE=readonly, no extra config needed
+      }
+    }
+  }
+}
+```
+
+**For Full Permissions (including delete):**
+```json
+{
+  "mcpServers": {
+    "yuque-multi-full": {
+      "command": "node",
+      "args": ["/Users/xxx/yuque-mcp-server/dist/cli.js"],
+      "env": {
+        "A_TOKEN": "xxx",
+        "B_TOKEN": "yyy",
+        "YUQUE_MODE": "full"
       }
     }
   }

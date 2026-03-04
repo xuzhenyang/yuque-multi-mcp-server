@@ -45,6 +45,13 @@ function parseKnowledgeBases(): KnowledgeBaseConfig[] {
   return configs;
 }
 
+// Parse mode from environment variable (default: readonly)
+const mode = (process.env.YUQUE_MODE || 'readonly') as 'readonly' | 'write' | 'full';
+if (!['readonly', 'write', 'full'].includes(mode)) {
+  console.error(`Error: Invalid YUQUE_MODE: ${mode}. Must be one of: readonly, write, full`);
+  process.exit(1);
+}
+
 const configs = parseKnowledgeBases();
 
 if (configs.length === 0) {
@@ -61,7 +68,7 @@ Please set one of the following environment variables:
   process.exit(1);
 }
 
-const mcpServer = createMCPServer(configs);
+const mcpServer = createMCPServer(configs, mode);
 const transport = new StreamableHTTPServerTransport({
   sessionIdGenerator: () => randomUUID(),
 });
@@ -78,7 +85,8 @@ mcpServer.connect(transport).then(() => {
 
   httpServer.listen(port, () => {
     const kbNames = configs.map((c) => c.name).join(', ');
-    console.log(`Yuque MCP Server running on http://localhost:${port} with knowledge base(s): ${kbNames}`);
+    const modeLabel = mode === 'readonly' ? '只读' : mode === 'write' ? '读写' : '完整';
+    console.log(`Yuque MCP Server running on http://localhost:${port} [${modeLabel}模式] with KB(s): ${kbNames}`);
   });
 }).catch((error) => {
   console.error('Failed to start server:', error);

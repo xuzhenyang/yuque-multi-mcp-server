@@ -75,6 +75,13 @@ if (handleCliSubcommands(process.argv)) {
     return configs;
   }
 
+  // Parse mode from environment variable (default: readonly)
+  const mode = (process.env.YUQUE_MODE || 'readonly') as 'readonly' | 'write' | 'full';
+  if (!['readonly', 'write', 'full'].includes(mode)) {
+    console.error(`Error: Invalid YUQUE_MODE: ${mode}. Must be one of: readonly, write, full`);
+    process.exit(1);
+  }
+
   const configs = parseKnowledgeBases();
 
   if (configs.length === 0) {
@@ -123,15 +130,16 @@ ${kbList}
 
 🚀 Quick install to your editor:
 
-   Cursor/Claude (with dynamic token names):
+   Cursor/Claude (只读模式，推荐):
    {
      "mcpServers": {
-       "yuque": {
-         "command": "npx",
-         "args": ["-y", "yuque-mcp"],
+       "yuque-multi-readonly": {
+         "command": "node",
+         "args": ["/path/to/yuque-mcp-server/dist/cli.js"],
          "env": {
            "A_TOKEN": "your_first_token",
            "B_TOKEN": "your_second_token"
+           // 默认 YUQUE_MODE=readonly，如需完整权限添加: "YUQUE_MODE": "full"
          }
        }
      }
@@ -172,7 +180,7 @@ ${kbList}
     process.exit(0);
   }
 
-  runStdioServer(configs).catch((error) => {
+  runStdioServer(configs, mode).catch((error) => {
     console.error('Fatal error:', error);
     process.exit(1);
   });

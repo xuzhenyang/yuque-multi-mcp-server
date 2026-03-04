@@ -8,31 +8,12 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 import { z } from 'zod';
 import { MultiYuqueClient } from './services/multi-yuque-client.js';
 import type { KnowledgeBaseConfig } from './services/multi-yuque-client.js';
-import { YuqueClient } from './services/yuque-client.js';
-import { userTools } from './tools/user.js';
-import { repoTools } from './tools/repo.js';
-import { docTools } from './tools/doc.js';
-import { tocTools } from './tools/toc.js';
-import { searchTools } from './tools/search.js';
-import { groupTools } from './tools/group.js';
-import { statsTools } from './tools/stats.js';
-import { versionTools } from './tools/version.js';
+import { getToolsByMode } from './tools/index.js';
 
 // Re-export for convenience
 export type { KnowledgeBaseConfig };
 
-// Tool definition interface - flexible to accommodate existing tools
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface ToolDefinition {
-  description: string;
-  inputSchema: z.ZodObject<z.ZodRawShape>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handler: (client: YuqueClient, args: any) => Promise<{
-    content: Array<{ type: 'text'; text: string }>;
-  }>;
-}
-
-export function createServer(configs: KnowledgeBaseConfig[]) {
+export function createServer(configs: KnowledgeBaseConfig[], mode: 'readonly' | 'write' | 'full' = 'readonly') {
   const multiClient = new MultiYuqueClient(configs);
   const knowledgeBases = multiClient.getKnowledgeBases();
   const defaultKB = multiClient.getDefaultKnowledgeBase();
@@ -49,36 +30,30 @@ export function createServer(configs: KnowledgeBaseConfig[]) {
     }
   );
 
-  // Combine all tools and cast to the expected type
-  const allTools: Record<string, ToolDefinition> = {
-    ...userTools,
-    ...repoTools,
-    ...docTools,
-    ...tocTools,
-    ...searchTools,
-    ...groupTools,
-    ...statsTools,
-    ...versionTools,
-  };
+  // 根据模式获取工具
+  const allTools = getToolsByMode(mode);
+  const toolCount = Object.keys(allTools).length;
+  const modeLabel = mode === 'readonly' ? '只读' : mode === 'write' ? '读写' : '完整';
 
   // Register list_tools handler
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     const kbDescription = knowledgeBases.length > 1
-      ? `Available knowledge bases: ${knowledgeBases.join(', ')}. Default: ${defaultKB}. `
+      ? `可用知识库: ${knowledgeBases.join(', ')}. 默认: ${defaultKB}. `
       : '';
+    const modeDescription = `模式: ${modeLabel}(${toolCount}个工具). `;
 
     return {
       tools: Object.entries(allTools).map(([name, tool]) => {
         // Create enhanced schema with knowledge_base parameter
         const enhancedSchema = tool.inputSchema.extend({
           knowledge_base: z.string().optional().describe(
-            `Knowledge base to use. Options: ${knowledgeBases.join(', ')}. Default: ${defaultKB}`
+            `知识库名称. 选项: ${knowledgeBases.join(', ')}. 默认: ${defaultKB}`
           ),
         });
 
         return {
           name,
-          description: `${kbDescription}${tool.description}`,
+          description: `${modeDescription}${kbDescription}${tool.description}`,
           inputSchema: zodToJsonSchema(enhancedSchema),
         };
       }),
@@ -122,10 +97,12 @@ export function createServer(configs: KnowledgeBaseConfig[]) {
   return server;
 }
 
-export async function runStdioServer(configs: KnowledgeBaseConfig[]) {
-  const server = createServer(configs);
+export async function runStdioServer(configs: KnowledgeBaseConfig[], mode: 'readonly' | 'write' | 'full' = 'readonly') {
+  const server = createServer(configs, mode);
   const transport = new StdioServerTransport();
   await server.connect(transport);
   const kbNames = configs.map((c) => c.name).join(', ');
-  console.error(`Yuque MCP Server running with ${configs.length} knowledge base(s): ${kbNames}`);
+  const toolCount = Object.keys(getToolsByMode(mode)).length;
+  const modeLabel = mode === 'readonly' ? '只读' : mode === 'write' ? '读写' : '完整';
+  console.error(`Yuque MCP Server running [${modeLabel}模式, ${toolCount}个工具] with ${configs.length} KB(s): ${kbNames}`);
 }

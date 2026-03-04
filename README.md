@@ -209,6 +209,20 @@ claude mcp add yuque-mcp -- npx -y yuque-mcp
 
 Yuque MCP Server 支持同时连接多个知识库，每个知识库使用不同的 Token。每个工具都支持可选的 `knowledge_base` 参数来指定要使用的知识库。
 
+> ⚠️ **安全提示：默认只读模式**
+> 
+> 出于安全考虑，Server **默认以只读模式启动**（`YUQUE_MODE=readonly`），仅允许查询操作。
+> 
+> 如需写入或删除操作，请显式设置环境变量：`"YUQUE_MODE": "write"` 或 `"YUQUE_MODE": "full"`
+
+### 权限模式
+
+| 模式 | 工具数量 | 说明 |
+|------|---------|------|
+| `readonly` (默认) | 16 | 只读查询：获取用户、列表、搜索、统计等 |
+| `write` | 22 | 读写模式：包含创建、更新操作 |
+| `full` | 25 | 完整模式：包含删除等危险操作 |
+
 ### 配置方式
 
 **方式 1：动态 Token 名称（推荐用于 Cursor/VSCode）**
@@ -244,16 +258,34 @@ npx yuque-mcp
 }
 ```
 
-**Cursor 配置示例（使用本地项目）：**
+**Cursor 配置示例（使用本地项目，只读模式）：**
 ```json
 {
   "mcpServers": {
-    "yuque-multi": {
+    "yuque-multi-readonly": {
       "command": "node",
       "args": ["/Users/xxx/yuque-mcp-server/dist/cli.js"],
       "env": {
         "A_TOKEN": "xxx",
         "B_TOKEN": "yyy"
+        // 默认 YUQUE_MODE=readonly，无需额外配置
+      }
+    }
+  }
+}
+```
+
+**如需完整权限（包含删除）：**
+```json
+{
+  "mcpServers": {
+    "yuque-multi-full": {
+      "command": "node",
+      "args": ["/Users/xxx/yuque-mcp-server/dist/cli.js"],
+      "env": {
+        "A_TOKEN": "xxx",
+        "B_TOKEN": "yyy",
+        "YUQUE_MODE": "full"
       }
     }
   }
